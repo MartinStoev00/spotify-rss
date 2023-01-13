@@ -43,8 +43,9 @@ def get_info(id):
 
 @app.route('/<id>', methods=['GET'])
 def hello_world(id):  # put application's code here
-    xml = get_info(id)
-    return Response(xml, mimetype='text/xml')
+    # xml = get_info(id)
+    # return Response(xml, mimetype='text/xml')
+    return "asd"
 
 
 if __name__ == '__main__':

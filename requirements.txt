@@ -1,2 +1,4 @@
-flask==1.1.1
-beautifulsoup4
+flask==2.0.3
+itsdangerous==2.0.1Z
+markupsafe==1.1.1
+beautifulsoup4==4.11.1
