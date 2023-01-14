@@ -6,18 +6,18 @@ import xml.etree.cElementTree as ET
 
 
 app = Flask(__name__)
-root = ET.Element("rss")
-root.set("version", "2.0")
-root.set("xmlns:atom", "http://www.w3.org/2005/Atom")
-channel = ET.SubElement(root, "channel")
-ET.SubElement(channel, "title").text = "Title"
-ET.SubElement(channel, "link").text = "https://www.google.com"
-ET.SubElement(channel, "description").text = "Some"
-headers = {'Accept-Encoding': 'identity'}
 
 
 def get_info(id):
     year = datetime.now().year
+    headers = {'Accept-Encoding': 'identity'}
+    root = ET.Element("rss")
+    root.set("version", "2.0")
+    root.set("xmlns:atom", "http://www.w3.org/2005/Atom")
+    channel = ET.SubElement(root, "channel")
+    ET.SubElement(channel, "title").text = "Title"
+    ET.SubElement(channel, "link").text = "https://www.google.com"
+    ET.SubElement(channel, "description").text = "Some"
     r = requests.get(f'https://open.spotify.com/show/{id}', headers=headers)
     if r.status_code != 200:
         return None
@@ -32,9 +32,6 @@ def get_info(id):
                 datetime_object = datetime.strptime(date, '%b %Y')
             else:
                 datetime_object = datetime.strptime(date, '%b %d').replace(year=year)
-            # datetime_object.hour = 0
-            # datetime_object.minute = 0
-            # datetime_object.second = 0
             item = ET.SubElement(channel, "item")
             ET.SubElement(item, "title").text = title
             ET.SubElement(item, "pubDate").text = datetime_object.strftime('%a, %d %b %Y 00:00:00')
