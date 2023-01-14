@@ -1,4 +1,4 @@
-from flask import Flask, Response
+from flask import Flask, Response, request, redirect
 import requests
 from bs4 import BeautifulSoup
 from datetime import datetime
@@ -19,6 +19,8 @@ headers = {'Accept-Encoding': 'identity'}
 def get_info(id):
     year = datetime.now().year
     r = requests.get(f'https://open.spotify.com/show/{id}', headers=headers)
+    if r.status_code != 200:
+        return None
     b = r.text
     soup = BeautifulSoup(b, 'html.parser').findAll("div", {"data-testid": "infinite-scroll-list"})
     for elem in soup[0]:
@@ -41,12 +43,19 @@ def get_info(id):
     return ET.tostring(root, encoding='unicode')
 
 
-@app.route('/<id>', methods=['GET'])
-def hello_world(id):  # put application's code here
-    # xml = get_info(id)
-    # return Response(xml, mimetype='text/xml')
-    return "asd"
+@app.route('/', methods=['GET'])
+def search():  # put application's code here
+    return '<form action="results"><input type="text" name="id"/></form>'
+
+
+@app.route('/results/', methods=['GET'])
+def page():  # put application's code here
+    id = request.args.get('id')
+    xml = get_info(id)
+    if xml is None:
+        return redirect("/")
+    return Response(xml, mimetype='text/xml')
 
 
 if __name__ == '__main__':
-    app.run()
+    app.run(debug=True)
