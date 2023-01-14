@@ -15,13 +15,15 @@ def get_info(id):
     root.set("version", "2.0")
     root.set("xmlns:atom", "http://www.w3.org/2005/Atom")
     channel = ET.SubElement(root, "channel")
-    ET.SubElement(channel, "title").text = "Title"
-    ET.SubElement(channel, "link").text = "https://www.google.com"
-    ET.SubElement(channel, "description").text = "Some"
     r = requests.get(f'https://open.spotify.com/show/{id}', headers=headers)
     if r.status_code != 200:
         return None
     b = r.text
+    channel_title = BeautifulSoup(b, 'html.parser').title.text.replace("| Podcast on Spotify", "")
+    ET.SubElement(channel, "title").text = channel_title
+    ET.SubElement(channel, "link").text = f"https://open.spotify.com/show/{id}"
+    ET.SubElement(channel, "description").text = "Some"
+    print(channel_title)
     soup = BeautifulSoup(b, 'html.parser').findAll("div", {"data-testid": "infinite-scroll-list"})
     for elem in soup[0]:
         try:
