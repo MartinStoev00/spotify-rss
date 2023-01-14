@@ -30,7 +30,6 @@ def get_info(id):
             title = elem.div.select("div:nth-child(2)")[0].div.contents[0].contents[0].contents[-1]
             link = elem.div.select("div:nth-child(2)")[0].div.contents[0]['href']
             link = 'https://open.spotify.com' + link
-            command = 'getp ' + link
             date = str(elem.div.select("div:nth-child(4)")[0].p.contents[0])
             datetime_object = None
             if date.endswith(str(year - 1)) or date.endswith(str(year)):
@@ -40,7 +39,6 @@ def get_info(id):
             item = ET.SubElement(channel, "item")
             ET.SubElement(item, "title").text = title
             ET.SubElement(item, "link").text = link
-            ET.SubElement(item, "description").text = command
             ET.SubElement(item, "pubDate").text = datetime_object.strftime('%a, %d %b %Y 00:00:00')
         except AttributeError:
             break
