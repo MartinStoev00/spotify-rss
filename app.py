@@ -30,6 +30,7 @@ def get_info(id):
             title = elem.div.select("div:nth-child(2)")[0].div.contents[0].contents[0].contents[-1]
             link = elem.div.select("div:nth-child(2)")[0].div.contents[0]['href']
             link = 'https://open.spotify.com' + link
+            description = elem.div.select("div:nth-child(3)")[0].p.contents[0]
             date = str(elem.div.select("div:nth-child(4)")[0].p.contents[0])
             datetime_object = None
             if date.endswith(str(year - 1)) or date.endswith(str(year)):
@@ -39,6 +40,7 @@ def get_info(id):
             item = ET.SubElement(channel, "item")
             ET.SubElement(item, "title").text = title
             ET.SubElement(item, "link").text = link
+            ET.SubElement(item, "description").text = description
             ET.SubElement(item, "pubDate").text = datetime_object.strftime('%a, %d %b %Y 00:00:00')
         except AttributeError:
             break
@@ -57,7 +59,3 @@ def page():  # put application's code here
     if xml is None:
         return redirect("/")
     return Response(xml, mimetype='text/xml')
-
-
-if __name__ == '__main__':
-    app.run(debug=True)
