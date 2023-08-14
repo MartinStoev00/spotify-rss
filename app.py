@@ -30,7 +30,6 @@ def get_info(id):
             title = elem.div.select("div:nth-child(2)")[0].div.contents[0].contents[0].contents[-1]
             link = elem.div.select("div:nth-child(2)")[0].div.contents[0]['href']
             link = 'https://open.spotify.com' + link
-            print("elem", elem.div.select("div:nth-child(3)")[0].p.contents)
             description = ""
             if len(elem.div.select("div:nth-child(3)")[0].p.contents) > 0:
                 description = elem.div.select("div:nth-child(3)")[0].p.contents[0]
