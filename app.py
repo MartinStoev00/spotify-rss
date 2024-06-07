@@ -41,7 +41,10 @@ def get_info(id):
                 if len(date_split[1]) == 4:
                     datetime_object = datetime.strptime(date, '%b %Y')
                 else:
-                    datetime_object = datetime.strptime(date, '%b %d').replace(year=year)
+                    try:
+                        datetime_object = datetime.strptime(date, '%b %d').replace(year=year)
+                    except ValueError:
+                        datetime_object = datetime.strptime("Feb 28", '%b %d').replace(year=year)
             else:
                 datetime_object = ""
             item = ET.SubElement(channel, "item")
