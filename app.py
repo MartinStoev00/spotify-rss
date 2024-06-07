@@ -34,11 +34,16 @@ def get_info(id):
             if len(elem.div.select("div:nth-child(3)")[0].p.contents) > 0:
                 description = elem.div.select("div:nth-child(3)")[0].p.contents[0]
             date = str(elem.div.select("div:nth-child(4)")[0].p.contents[0])
+            print(date)
             datetime_object = None
-            if date.endswith(str(year - 1)) or date.endswith(str(year)):
-                datetime_object = datetime.strptime(date, '%b %Y')
+            date_split = date.split(" ")
+            if len(date_split) == 2:
+                if len(date_split[1]) == 4:
+                    datetime_object = datetime.strptime(date, '%b %Y')
+                else:
+                    datetime_object = datetime.strptime(date, '%b %d').replace(year=year)
             else:
-                datetime_object = datetime.strptime(date, '%b %d').replace(year=year)
+                datetime_object = ""
             item = ET.SubElement(channel, "item")
             ET.SubElement(item, "title").text = title
             ET.SubElement(item, "link").text = link
