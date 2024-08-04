@@ -9,49 +9,54 @@ app = Flask(__name__)
 
 
 def get_info(id):
-    year = datetime.now().year
-    headers = {'Accept-Encoding': 'identity'}
-    root = ET.Element("rss")
-    root.set("version", "2.0")
-    root.set("xmlns:atom", "http://www.w3.org/2005/Atom")
-    channel = ET.SubElement(root, "channel")
+    url = f'https://api.spotify.com/v1/shows/{id}/episodes'  # Example endpoint
+    client_id = 'client_id'
+    client_secret = 'client_secret'
+
+    token_url = 'https://accounts.spotify.com/api/token'
+
+    response = requests.post(token_url, {
+        'grant_type': 'client_credentials',
+        'client_id': client_id,
+        'client_secret': client_secret,
+    })
+
+    token_info = response.json()
+    access_token = token_info['access_token']
+
+    headers = {
+        'Authorization': f'Bearer {access_token}',
+        'Content-Type': 'application/json'
+    }
+
+    response = requests.get('https://api.spotify.com/v1/shows/2b025hq3gJ17tQdxS3aV43/episodes?offset=0&limit=50',
+                            headers=headers)
+    episodes = response.json()
+
+    response = requests.get(url, headers=headers)
+    episodes = response.json()
+    print(episodes)
+    episodes = episodes['items']
+
     r = requests.get(f'https://open.spotify.com/show/{id}', headers=headers)
     if r.status_code != 200:
         return None
     b = r.text
+    root = ET.Element("rss")
+    root.set("version", "2.0")
+    root.set("xmlns:atom", "http://www.w3.org/2005/Atom")
+    channel = ET.SubElement(root, "channel")
     channel_title = BeautifulSoup(b, 'html.parser').title.text.replace("| Podcast on Spotify", "")
     ET.SubElement(channel, "title").text = channel_title
     ET.SubElement(channel, "link").text = f"https://open.spotify.com/show/{id}"
     ET.SubElement(channel, "description").text = "Some"
-    print(channel_title)
-    soup = BeautifulSoup(b, 'html.parser').findAll("div", {"data-testid": "infinite-scroll-list"})
-    for elem in soup[0]:
+    for elem in episodes:
         try:
-            title = elem.div.select("div:nth-child(2)")[0].div.contents[0].contents[0].contents[-1]
-            link = elem.div.select("div:nth-child(2)")[0].div.contents[0]['href']
-            link = 'https://open.spotify.com' + link
-            description = ""
-            if len(elem.div.select("div:nth-child(3)")[0].p.contents) > 0:
-                description = elem.div.select("div:nth-child(3)")[0].p.contents[0]
-            date = str(elem.div.select("div:nth-child(4)")[0].p.contents[0])
-            print(date)
-            datetime_object = None
-            date_split = date.split(" ")
-            if len(date_split) == 2:
-                if len(date_split[1]) == 4:
-                    datetime_object = datetime.strptime(date, '%b %Y')
-                else:
-                    try:
-                        datetime_object = datetime.strptime(date, '%b %d').replace(year=year)
-                    except ValueError:
-                        datetime_object = datetime.strptime("Feb 28", '%b %d').replace(year=year)
-            else:
-                datetime_object = ""
             item = ET.SubElement(channel, "item")
-            ET.SubElement(item, "title").text = title
-            ET.SubElement(item, "link").text = link
-            ET.SubElement(item, "description").text = description
-            ET.SubElement(item, "pubDate").text = datetime_object.strftime('%a, %d %b %Y 00:00:00')
+            ET.SubElement(item, "title").text = elem["name"]
+            ET.SubElement(item, "link").text = elem["external_urls"]["spotify"]
+            ET.SubElement(item, "description").text = elem["description"]
+            ET.SubElement(item, "pubDate").text = elem["release_date"]
         except AttributeError:
             break
     return ET.tostring(root, encoding='unicode')
